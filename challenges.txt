@@ -1,0 +1,19 @@
+Challenges:
+
+[BASIC PARTICULAR]
+
+1) Long employer name needs to be separated into multiple lines
+2) The letter 'E' in Employer's TIN needs to be removed
+3) Category of Employer needs to be mapped into code (as in the form)
+4) Employer Status needs to be mapped into code (as in the form)
+5) Correspondence address needs to be split into address_line, postcode, city, state. (would there be any states other than KL & Labuan?)
+6) Furnish of C.P.8D needs to be mapped into code (as in the form)
+
+[PART A]
+
+
+[PART B]
+
+
+TO-DO:
+- handle 'PERSEKETUAN' mispelling
