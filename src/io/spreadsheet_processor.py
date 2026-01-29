@@ -19,8 +19,8 @@ class SpreadsheetProcessor:
             raise ValueError(f"Error loading spreadsheet: {str(e)}")
     
     @staticmethod
-    def split_string(text, max_len=50) -> list[str]:
-        words = text.split()
+    def split_string(text, separator=' ', max_len=50) -> list[str]:
+        words = text.split(separator)
         parts = []
         current = ""
 
@@ -70,11 +70,11 @@ class SpreadsheetProcessor:
     # Extract city by removing address_line_1, postcode, and state from 'Correspondence address'
     def extract_city(row) -> Optional[str]:
         address = row['Correspondence address']
-        address_line_1 = row['address_line_1']
+        address_line = row['address_line']
         postcode = row['postcode']
         state = row['state']
-        if address_line_1 and postcode and state:
-            return address.replace(address_line_1, '').replace(postcode, '').replace(state, '').strip()
+        if address_line and postcode and state:
+            return address.replace(address_line, '').replace(postcode, '').replace(state, '').strip()
         return None
     
     @staticmethod
@@ -155,7 +155,15 @@ class SpreadsheetProcessor:
         df['postcode'] = df['Correspondence address'].str.extract(r'(\b\d{5}\b)', expand=False)
 
         # Extract address line 1 before the 5-digit postcode
-        df['address_line_1'] = df['Correspondence address'].str.extract(r'^(.*?)(?=\b\d{5}\b)', expand=False).str.strip()
+        df['address_line'] = df['Correspondence address'].str.extract(r'^(.*?)(?=\b\d{5}\b)', expand=False).str.strip()
+
+        # Split correspondence address if exceeds 62 characters
+        df.loc[:, 'address_line_split'] = df.loc[:, 'address_line'].str.upper().apply(lambda x: SpreadsheetProcessor.split_string(x, separator=',', max_len=62))
+
+        # Create new columns for split correspondence addresses
+        df.loc[:, 'address_line_1'] = df['address_line_split'].apply(lambda x: x[0].replace('  ', ', '))
+        df.loc[:, 'address_line_2'] = df['address_line_split'].apply(lambda x: x[1].replace('  ', ', ') if len(x) > 1 else '')
+        df.loc[:, 'address_line_3'] = df['address_line_split'].apply(lambda x: x[2].replace('  ', ', ') if len(x) > 2 else '')
 
         # Correct 'PERSEKETUAN' to 'PERSEKUTUAN' in state names
         df['Correspondence address'] = df['Correspondence address'].replace('PERSEKETUAN', 'PERSEKUTUAN', regex=True)
@@ -169,11 +177,6 @@ class SpreadsheetProcessor:
         # Abbreviate 'WILAYAH PERSEKUTUAN' to 'WP'
         df['state'] = df['state'].str.replace('WILAYAH PERSEKUTUAN', 'WP')
         
-        # Convert columns start with 'Number' into str
-        number_columns = [col for col in df.columns if col.startswith('Number')]
-        for col in number_columns:
-            df[col] = df[col].astype(str)
-
         # Rename (remove newline characters)
         df.columns = df.columns.str.replace('\n', ' ')
 
@@ -189,6 +192,8 @@ class SpreadsheetProcessor:
             'TIN Number',
             'Registration no. with Companies Commission of Malaysia (CCM) or others',
             'address_line_1',
+            'address_line_2',
+            'address_line_3',
             'postcode',
             'city',
             'state',
