@@ -194,6 +194,11 @@ def render_mapping_section():
         field_names = template.get_field_names()
         auto_map = {col: col for col in df.columns if col in field_names}
         st.session_state.column_field_mapping = auto_map
+        
+        # Update widget states to reflect auto-mapping
+        for col, field in auto_map.items():
+            st.session_state[f"sel_{col}"] = field
+            
         st.success(f"Auto-mapped {len(auto_map)} fields")
     
     st.divider()
@@ -285,7 +290,7 @@ def generate_pdfs(template, images, df, mapping):
             
             pdf = PDFGenerator.create_filled_pdf(images, template, field_data)
             
-            name = df['Name Of Employer As Registered 1'].iloc[idx]
+            name = df[ExportConfig.PDF_FILENAME_COL].iloc[idx]
             filename = f"{str(name)}.pdf"
             
             pdf_files.append(pdf)

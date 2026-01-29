@@ -40,4 +40,5 @@ class FieldConfig:
 
 class ExportConfig:
     """Export configuration"""
+    PDF_FILENAME_COL = "Name Of Employer As Registered 1"
     ZIP_FILENAME = "filled_tax_forms.zip"

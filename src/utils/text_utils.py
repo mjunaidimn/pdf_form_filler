@@ -25,6 +25,9 @@ class TextUtils:
         elif field_type == "checkbox":
             return "✓" if value else ""
         else:
+            # If pandas read a number as float (e.g., 123.0), convert to int then str
+            if isinstance(value, float) and value.is_integer():
+                return str(int(value))
             return str(value)
     
     @staticmethod

@@ -117,6 +117,13 @@ class SpreadsheetProcessor:
             'Exempted': '2'
         }
 
+        # Remove leading/trailing whitespace from all column names
+        df.columns = df.columns.str.strip()
+
+        # Rename column if misnamed
+        if 'Name Of Employee As Registered' in df.columns:
+            df = df.rename(columns={'Name Of Employee As Registered': 'Name Of Employer As Registered'})
+
         # Convert first column to uppercase
         df.loc[:, 'Name Of Employer As Registered'] = df.loc[:, 'Name Of Employer As Registered'].str.upper()
 

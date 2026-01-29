@@ -14,6 +14,7 @@ class TemplateLoader:
         try:
             df = pd.read_csv(csv_file)
             
+            # Check for required columns
             required_columns = ['field_name', 'page_number', 'x', 'y']
             missing = [col for col in required_columns if col not in df.columns]
             
